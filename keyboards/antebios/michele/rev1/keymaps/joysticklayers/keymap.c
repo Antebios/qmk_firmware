@@ -731,14 +731,14 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, report_mouse_t right_report) {
 
   dprintf("=========================================================================================\n");
-  dprintf("Left Pointing Device ==> mouse_report.x: %d, mouse_report.y: %d\n", left_report.x, left_report.y);
-  dprintf("Right Pointing Device ==> mouse_report.x: %d, mouse_report.y: %d\n", right_report.x, right_report.y);
+  dprintf("Left Pointing Device ==> left_report.x: %d, left_report.y: %d\n", left_report.x, left_report.y);
+  dprintf("Right Pointing Device ==> right_report.x: %d, right_report.y: %d\n", right_report.x, right_report.y);
 
-  dprintf("Checking mouse_report.x: %d, mouse_report.y: %d\n", mouse_report.x, mouse_report.y);
-  updateLeftX(arrLeftX, mouse_report.x);
-  updateLeftY(arrLeftY, mouse_report.y);
-  updateRightX(arrRightX, mouse_report.x);
-  updateRightY(arrRightY, mouse_report.y);
+  dprintf("Checking left_report.x: %d, left_report.y: %d\n", left_report.x, left_report.y);
+  updateLeftX(arrLeftX, left_report.x);
+  updateLeftY(arrLeftY, left_report.y);
+  updateRightX(arrRightX, left_report.x);
+  updateRightY(arrRightY, left_report.y);
   if(checkAllZeros(arrLeftX) && checkAllZeros(arrLeftY)) {
       dprintf("All zeros\n");
       left_pointer_tap_code_sent = false;
@@ -759,25 +759,25 @@ report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, re
 
     if (!left_pointer_tap_code_sent) {
       dprintf("About to send keys...\n");
-      dprintf("Mouse_report.x: %d,Mouse_report.y: %d\n", mouse_report.x, mouse_report.y);
-      if (mouse_report.x == 7) {
+      dprintf("left_report.x: %d,left_report.y: %d\n", left_report.x, left_report.y);
+      if (left_report.x == 7) {
           tap_code(KC_END);
           dprintf("Sent KC_END\n");
           left_pointer_tap_code_sent = true;
           dprintf("Set left_pointer_tap_code_sent to TRUE\n");
-      } else if (mouse_report.x == -7) {
+      } else if (left_report.x == -7) {
           tap_code(KC_HOME);
           dprintf("Sent KC_HOME\n");
           left_pointer_tap_code_sent = true;
           dprintf("Set left_pointer_tap_code_sent to TRUE\n");
       }
 
-      if (mouse_report.y == 7) {
+      if (left_report.y == 7) {
           tap_code(KC_PGDN);
           dprintf("Sent KC_PGDN\n");
           left_pointer_tap_code_sent = true;
           dprintf("Set left_pointer_tap_code_sent to TRUE\n");
-      } else if (mouse_report.y == -7) {
+      } else if (left_report.y == -7) {
           tap_code(KC_PGUP);
           dprintf("Sent KC_PGUP\n");
           left_pointer_tap_code_sent = true;
@@ -785,8 +785,8 @@ report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, re
       }
     }
 
-    mouse_report.x = 0;
-    mouse_report.y = 0;
+    left_report.x = 0;
+    left_report.y = 0;
 
   }
 
@@ -794,12 +794,12 @@ report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, re
   return pointing_device_combine_reports(left_report, right_report);
 }
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    if (keycode == DRAG_SCROLL && record->event.pressed) {
-        set_scrolling = !set_scrolling;
-    }
-    return true;
-}
+// bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+//     if (keycode == DRAG_SCROLL && record->event.pressed) {
+//         set_scrolling = !set_scrolling;
+//     }
+//     return true;
+// }
 
 
 void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
