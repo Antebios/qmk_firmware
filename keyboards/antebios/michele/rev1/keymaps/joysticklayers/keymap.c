@@ -77,6 +77,7 @@ enum {
   TD_DOT_RABK,
   TD_SLSH_QUES,
   TD_BSLS_PIPE,
+  TD_SMCL_CLN,
 
   TD_PGUP_HOME,
   TD_PGDN_END,
@@ -318,6 +319,47 @@ void lspace_reset (tap_dance_state_t *state, void *user_data) {
   lspacetap_state.state = 0;
 }
 
+
+
+// Semi-Colon key for Custom Home Row Mod
+// Semi-Colon key action:
+// Semi-Colon tapped, then ; keystroke only.
+// Semi-Colon held down, then use GUI mode of key.
+// Semi-Colon double-tapped, then : keystroke.
+// Semi-Colon double-tapped and held, nothing.
+void semicolon_finished (tap_dance_state_t *state, void *user_data);
+void semicolon_reset (tap_dance_state_t *state, void *user_data);
+
+static tap semicolontap_state = {
+  .is_press_action = true,
+  .state = 0
+};
+
+void semicolon_finished (tap_dance_state_t *state, void *user_data) {
+  semicolontap_state.state = cur_dance(state);
+  switch (semicolontap_state.state) {
+    case SINGLE_TAP: tap_code (KC_SCLN); break;
+    case SINGLE_HOLD: register_mods(KC_RGUI); break;
+    case DOUBLE_TAP: tap_code (KC_COLN);break;
+    case DOUBLE_HOLD: break;
+  }
+}
+
+void semicolon_reset (tap_dance_state_t *state, void *user_data) {
+  switch (semicolontap_state.state) {
+    case SINGLE_TAP: break;
+    case SINGLE_HOLD: unregister_mods(KC_RGUI); break;
+    case DOUBLE_TAP: break;
+    case DOUBLE_HOLD: break;
+  }
+  semicolontap_state.state = 0;
+}
+
+
+
+
+
+
 //Tap Dance Definitions
 tap_dance_action_t tap_dance_actions[] = {
    [TD_DEL_BSPC]  = ACTION_TAP_DANCE_DOUBLE(KC_BSPC, KC_DEL),
@@ -340,6 +382,7 @@ tap_dance_action_t tap_dance_actions[] = {
    [TD_DOT_RABK]  = ACTION_TAP_DANCE_DOUBLE(KC_DOT, KC_RABK),
    [TD_SLSH_QUES]  = ACTION_TAP_DANCE_DOUBLE(KC_SLSH, KC_QUES),
    [TD_BSLS_PIPE]  = ACTION_TAP_DANCE_DOUBLE(KC_BSLS, KC_PIPE),
+   [TD_SMCL_CLN] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,semicolon_finished, semicolon_reset)
 
    [TD_PGUP_HOME]  = ACTION_TAP_DANCE_DOUBLE(KC_PGUP, KC_HOME),
    [TD_PGDN_END]   = ACTION_TAP_DANCE_DOUBLE(KC_PGDN, KC_END),
@@ -384,11 +427,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 
   [_QWERTY] = LAYOUT(
-    TD(TD_DEL_BSPC),  KC_1,   KC_2,        KC_3,    KC_4,    KC_5,                              KC_6,          KC_7,    KC_8,             TD(TD_9_LPRN),   TD(TD_0_RPRN),    TD(TD_MINS_UNDS),
-    TD(TD_TAB_TILDE), KC_Q,   KC_W,        KC_E,    KC_R,    KC_T,                              KC_Y,          KC_U,    KC_I,             KC_O,            KC_P,             TD(TD_EQL_PLUS),
-    TD(TD_SHIFT_CAPS),KC_A,   KC_S,        KC_D,    KC_F,    KC_G,                              KC_H,          KC_J,    KC_K,             KC_L,            TD(TD_SCLN_COLN), TD(TD_QUOT_DQT),
-    TD(CTL_OSL1),     KC_Z,   KC_X,        KC_C,    KC_V,    KC_B,                              KC_N,          KC_M,    TD(TD_COMM_LABK), TD(TD_DOT_RABK), TD(TD_SLSH_QUES), KC_RSFT,
-                              KC_ESC,OSM(MOD_LGUI), KC_LALT, TD(TD_LayerDn), KC_SPC,     KC_ENT,TD(TD_LayerUp),KC_RCMD, KC_RGUI,          TD(TD_BSLS_PIPE)
+    TD(TD_DEL_BSPC),  KC_1,               KC_2,        KC_3,        KC_4,        KC_5,                              KC_6,       KC_7,        KC_8,     TD(TD_9_LPRN),   TD(TD_0_RPRN),   TD(TD_MINS_UNDS),
+    TD(TD_TAB_TILDE), KC_Q,               KC_W,        KC_E,        KC_R,        KC_T,                              KC_Y,       KC_U,        KC_I,               KC_O,     KC_P,         TD(TD_EQL_PLUS),
+    TD(TD_SHIFT_CAPS),LGUI_T(KC_A),LALT_T(KC_S),LSFT_T(KC_D),LCTL_T(KC_F),       KC_G,                              KC_H,RCTL_T(KC_J),RSFT_T(KC_K),       LALT_T(KC_L), TD(TD_SMCL_CLN), TD(TD_QUOT_DQT),
+    TD(CTL_OSL1),     KC_Z,               KC_X,        KC_C,        KC_V,        KC_B,                              KC_N,       KC_M,TD(TD_COMM_LABK), TD(TD_DOT_RABK), TD(TD_SLSH_QUES),   KC_RSFT,
+                                        KC_ESC,OSM(MOD_LGUI), TD(ALT_OSL1), TD(TD_LayerDn), KC_SPC,     KC_ENT,TD(TD_LayerUp),KC_RCMD,       KC_RGUI,  TD(TD_BSLS_PIPE)
 ),
 
 /*
