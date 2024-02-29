@@ -338,9 +338,9 @@ static tap semicolontap_state = {
 void semicolon_finished (tap_dance_state_t *state, void *user_data) {
   semicolontap_state.state = cur_dance(state);
   switch (semicolontap_state.state) {
-    case SINGLE_TAP: tap_code (KC_SCLN); break;
+    case SINGLE_TAP: tap_code(KC_SCLN); break;
     case SINGLE_HOLD: register_mods(KC_RGUI); break;
-    case DOUBLE_TAP: tap_code (KC_COLN);break;
+    case DOUBLE_TAP: register_mods(KC_RSFT);register_code(KC_SCLN);break;
     case DOUBLE_HOLD: break;
   }
 }
@@ -349,7 +349,7 @@ void semicolon_reset (tap_dance_state_t *state, void *user_data) {
   switch (semicolontap_state.state) {
     case SINGLE_TAP: break;
     case SINGLE_HOLD: unregister_mods(KC_RGUI); break;
-    case DOUBLE_TAP: break;
+    case DOUBLE_TAP: unregister_code(KC_SCLN);unregister_mods(KC_RSFT);break;
     case DOUBLE_HOLD: break;
   }
   semicolontap_state.state = 0;
@@ -382,7 +382,7 @@ tap_dance_action_t tap_dance_actions[] = {
    [TD_DOT_RABK]  = ACTION_TAP_DANCE_DOUBLE(KC_DOT, KC_RABK),
    [TD_SLSH_QUES]  = ACTION_TAP_DANCE_DOUBLE(KC_SLSH, KC_QUES),
    [TD_BSLS_PIPE]  = ACTION_TAP_DANCE_DOUBLE(KC_BSLS, KC_PIPE),
-   [TD_SMCL_CLN] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,semicolon_finished, semicolon_reset)
+   [TD_SMCL_CLN] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,semicolon_finished, semicolon_reset),
 
    [TD_PGUP_HOME]  = ACTION_TAP_DANCE_DOUBLE(KC_PGUP, KC_HOME),
    [TD_PGDN_END]   = ACTION_TAP_DANCE_DOUBLE(KC_PGDN, KC_END),
