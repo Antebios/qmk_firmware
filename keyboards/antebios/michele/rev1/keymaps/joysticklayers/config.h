@@ -20,9 +20,15 @@
  *========================**/
                 // {"matrix": [3, 6], "x": 6, "y": 3.375},
                 // {"matrix": [8, 6], "x": 8, "y": 3.375},
+
+
+
 #define ANALOG_JOYSTICK_X_AXIS_PIN F4
 #define ANALOG_JOYSTICK_Y_AXIS_PIN F5
+#define SECOND_ANALOG_JOYSTICK_X_AXIS_PIN F4
+#define SECOND_ANALOG_JOYSTICK_Y_AXIS_PIN F5
 // #define POINTING_DEVICE_LEFT
+// #define POINTING_DEVICE_RIGHT
 #define POINTING_DEVICE_COMBINED
 
 #define SPLIT_POINTING_ENABLE
@@ -34,6 +40,8 @@
 #define POINTING_DEVICE_INVERT_Y_RIGHT
 
 
+// #include "analog.h"
+// #include "second_analog_joystick.h"
 
 // Enabling this option changes the startup behavior to listen for an
 // active USB communication to delegate which part is master and which
