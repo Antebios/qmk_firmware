@@ -101,9 +101,6 @@ enum {
 };
 
 
-
-
-
 // Alt key action:
 // SINGLE_TAP = toggle layer, then wait for keypress on called layer, then switch back to original layer.
 // SINGLE_HOLD = will work as normal sending the keypress.
@@ -206,19 +203,19 @@ static tap layerdn_tap_state = {
 void layerDown_finished (tap_dance_state_t *state, void *user_data) {
   layerdn_tap_state.state = cur_dance(state);
   switch (layerdn_tap_state.state) {
-    case SINGLE_TAP: break;
+    case SINGLE_TAP:  layer_move(_QWERTY); break;
     case SINGLE_HOLD: layer_on(_LOWER); break;
-    case DOUBLE_TAP: layer_move(_QWERTY); break;
+    case DOUBLE_TAP:  layer_move(_QWERTY); break;
     case DOUBLE_HOLD: break;
-    case TRIPLE_TAP: reset_keyboard(); break;
+    case TRIPLE_TAP:  soft_reset_keyboard(); break;
   }
 }
 
 void layerDown_reset (tap_dance_state_t *state, void *user_data) {
   switch (layerdn_tap_state.state) {
-    case SINGLE_TAP: break;
+    case SINGLE_TAP:  break;
     case SINGLE_HOLD: layer_off(_LOWER); break;
-    case DOUBLE_TAP: break;
+    case DOUBLE_TAP:  break;
     case DOUBLE_HOLD: break;
   }
   layerdn_tap_state.state = 0;
@@ -745,9 +742,11 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     return state;
 }
 
-
+#if defined(SPLIT_POINTING_ENABLE)
 static bool left_pointer_tap_code_sent = false;
-static bool right_pointer_tap_code_sent = false;
+#  if defined(POINTING_DEVICE_COMBINED)
+    static bool right_pointer_tap_code_sent = false;
+#  endif
 #define LEFT_POINTER_X_ARRAY_SIZE 6
 #define RIGHT_POINTER_X_ARRAY_SIZE 6
 int arrLeftX[LEFT_POINTER_X_ARRAY_SIZE] = {0, 0, 0, 0, 0, 0};
@@ -797,7 +796,9 @@ bool checkAllZeros(int arr[]) {
     }
     return true; // All zeros
 }
+#endif
 
+#if defined(SPLIT_POINTING_ENABLE)
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     dprintf("=========================================================================================\n");
     dprintf("Checking mouse_report.x: %d, mouse_report.y: %d\n", mouse_report.x, mouse_report.y);
@@ -848,7 +849,9 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     }
     return mouse_report;
 }
+#endif
 
+#if defined(SPLIT_POINTING_ENABLE) && defined(POINTING_DEVICE_COMBINED)
 report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, report_mouse_t right_report) {
 
   dprintf("=========================================================================================\n");
@@ -914,6 +917,7 @@ report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, re
 
   return pointing_device_combine_reports(left_report, right_report);
 }
+#endif
 
 // bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 //     if (keycode == DRAG_SCROLL && record->event.pressed) {

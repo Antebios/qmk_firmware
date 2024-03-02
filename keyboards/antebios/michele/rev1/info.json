@@ -114,7 +114,8 @@
     },
     "split": {
         "enabled": true,
-        "soft_serial_pin": "D2"
+        "soft_serial_pin": "D2",
+        "soft_serial_speed": 1
     },
     "url": "https://github.com/Antebios/keyboards/tree/main/michele58_choc_spacing_hs-flip",
     "usb": {
