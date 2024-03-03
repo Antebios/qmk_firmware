@@ -742,189 +742,184 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     return state;
 }
 
-#if defined(SPLIT_POINTING_ENABLE)
-static bool left_pointer_tap_code_sent = false;
-#  if defined(POINTING_DEVICE_COMBINED)
-    static bool right_pointer_tap_code_sent = false;
-#  endif
-#define LEFT_POINTER_X_ARRAY_SIZE 6
-#define RIGHT_POINTER_X_ARRAY_SIZE 6
-int arrLeftX[LEFT_POINTER_X_ARRAY_SIZE] = {0, 0, 0, 0, 0, 0};
-int arrLeftY[LEFT_POINTER_X_ARRAY_SIZE] = {0, 0, 0, 0, 0, 0};
-int arrRightX[RIGHT_POINTER_X_ARRAY_SIZE] = {0, 0, 0, 0, 0, 0};
-int arrRightY[RIGHT_POINTER_X_ARRAY_SIZE] = {0, 0, 0, 0, 0, 0};
+// #if defined(SPLIT_POINTING_ENABLE)
+// static bool left_pointer_tap_code_sent = false;
+// #  if defined(POINTING_DEVICE_COMBINED)
+//     static bool right_pointer_tap_code_sent = false;
+// #  endif
+// #define LEFT_POINTER_X_ARRAY_SIZE 6
+// #define RIGHT_POINTER_X_ARRAY_SIZE 6
+// int arrLeftX[LEFT_POINTER_X_ARRAY_SIZE] = {0, 0, 0, 0, 0, 0};
+// int arrLeftY[LEFT_POINTER_X_ARRAY_SIZE] = {0, 0, 0, 0, 0, 0};
+// int arrRightX[RIGHT_POINTER_X_ARRAY_SIZE] = {0, 0, 0, 0, 0, 0};
+// int arrRightY[RIGHT_POINTER_X_ARRAY_SIZE] = {0, 0, 0, 0, 0, 0};
 
-void updateLeftX(int arrLeftX[], int newValue) {
-    // Shift elements to the left
-    for (int i = 0; i < LEFT_POINTER_X_ARRAY_SIZE - 1; i++) {
-        arrLeftX[i] = arrLeftX[i + 1];
-    }
-    // Add the newest integer
-    arrLeftX[LEFT_POINTER_X_ARRAY_SIZE - 1] = newValue;
-}
-void updateLeftY(int arrLeftY[], int newValue) {
-    // Shift elements to the left
-    for (int i = 0; i < LEFT_POINTER_X_ARRAY_SIZE - 1; i++) {
-        arrLeftY[i] = arrLeftY[i + 1];
-    }
-    // Add the newest integer
-    arrLeftY[LEFT_POINTER_X_ARRAY_SIZE - 1] = newValue;
-}
-
-void updateRightX(int arrRightX[], int newValue) {
-    // Shift elements to the left
-    for (int i = 0; i < RIGHT_POINTER_X_ARRAY_SIZE - 1; i++) {
-        arrRightX[i] = arrRightX[i + 1];
-    }
-    // Add the newest integer
-    arrRightX[RIGHT_POINTER_X_ARRAY_SIZE - 1] = newValue;
-}
-void updateRightY(int arrRightY[], int newValue) {
-    // Shift elements to the left
-    for (int i = 0; i < RIGHT_POINTER_X_ARRAY_SIZE - 1; i++) {
-        arrRightY[i] = arrRightY[i + 1];
-    }
-    // Add the newest integer
-    arrRightY[RIGHT_POINTER_X_ARRAY_SIZE - 1] = newValue;
-}
-
-bool checkAllZeros(int arr[]) {
-    for (int i = 0; i < LEFT_POINTER_X_ARRAY_SIZE; i++) {
-        if (arr[i] != 0) {
-            return false; // Not all zeros
-        }
-    }
-    return true; // All zeros
-}
-#endif
-
-#if defined(SPLIT_POINTING_ENABLE)
-report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
-    dprintf("=========================================================================================\n");
-    dprintf("Checking mouse_report.x: %d, mouse_report.y: %d\n", mouse_report.x, mouse_report.y);
-    updateLeftX(arrLeftX, mouse_report.x);
-    updateLeftY(arrLeftY, mouse_report.y);
-    if(checkAllZeros(arrLeftX) && checkAllZeros(arrLeftY)) {
-        dprintf("All zeros\n");
-        left_pointer_tap_code_sent = false;
-        dprintf("Set left_pointer_tap_code_sent to FALSE\n");
-    } else {
-        dprintf("Not all zeros\n");
-    }
-
-    if (!enable_mouse_pointer) {
-        dprintf("Mouse already_sent: %d\n", left_pointer_tap_code_sent);
-
-      if (!left_pointer_tap_code_sent) {
-        dprintf("About to send keys...\n");
-        dprintf("Mouse_report.x: %d,Mouse_report.y: %d\n", mouse_report.x, mouse_report.y);
-        if (mouse_report.x == 7) {
-            tap_code(KC_END);
-            dprintf("Sent KC_END\n");
-            left_pointer_tap_code_sent = true;
-            dprintf("Set left_pointer_tap_code_sent to TRUE\n");
-        } else if (mouse_report.x == -7) {
-            tap_code(KC_HOME);
-            dprintf("Sent KC_HOME\n");
-            left_pointer_tap_code_sent = true;
-            dprintf("Set left_pointer_tap_code_sent to TRUE\n");
-        }
-
-        if (mouse_report.y == 7) {
-            tap_code(KC_PGDN);
-            dprintf("Sent KC_PGDN\n");
-            left_pointer_tap_code_sent = true;
-            dprintf("Set left_pointer_tap_code_sent to TRUE\n");
-        } else if (mouse_report.y == -7) {
-            tap_code(KC_PGUP);
-            dprintf("Sent KC_PGUP\n");
-            left_pointer_tap_code_sent = true;
-            dprintf("Set left_pointer_tap_code_sent to TRUE\n");
-        }
-      }
-
-      mouse_report.x = 0;
-      mouse_report.y = 0;
-
-    }
-    return mouse_report;
-}
-#endif
-
-#if defined(SPLIT_POINTING_ENABLE) && defined(POINTING_DEVICE_COMBINED)
-report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, report_mouse_t right_report) {
-
-  dprintf("=========================================================================================\n");
-  dprintf("Left Pointing Device ==> left_report.x: %d, left_report.y: %d\n", left_report.x, left_report.y);
-  dprintf("Right Pointing Device ==> right_report.x: %d, right_report.y: %d\n", right_report.x, right_report.y);
-
-  dprintf("Checking left_report.x: %d, left_report.y: %d\n", left_report.x, left_report.y);
-  updateLeftX(arrLeftX, left_report.x);
-  updateLeftY(arrLeftY, left_report.y);
-  updateRightX(arrRightX, left_report.x);
-  updateRightY(arrRightY, left_report.y);
-  if(checkAllZeros(arrLeftX) && checkAllZeros(arrLeftY)) {
-      dprintf("All zeros\n");
-      left_pointer_tap_code_sent = false;
-      dprintf("Set left_pointer_tap_code_sent to FALSE\n");
-  } else {
-      dprintf("Not all zeros\n");
-  }
-  if(checkAllZeros(arrRightX) && checkAllZeros(arrRightY)) {
-      dprintf("All zeros\n");
-      right_pointer_tap_code_sent = false;
-      dprintf("Set left_pointer_tap_code_sent to FALSE\n");
-  } else {
-      dprintf("Not all zeros\n");
-  }
-
-  if (!enable_mouse_pointer) {
-      dprintf("Mouse already_sent: %d\n", left_pointer_tap_code_sent);
-
-    if (!left_pointer_tap_code_sent) {
-      dprintf("About to send keys...\n");
-      dprintf("left_report.x: %d,left_report.y: %d\n", left_report.x, left_report.y);
-      if (left_report.x == 7) {
-          tap_code(KC_END);
-          dprintf("Sent KC_END\n");
-          left_pointer_tap_code_sent = true;
-          dprintf("Set left_pointer_tap_code_sent to TRUE\n");
-      } else if (left_report.x == -7) {
-          tap_code(KC_HOME);
-          dprintf("Sent KC_HOME\n");
-          left_pointer_tap_code_sent = true;
-          dprintf("Set left_pointer_tap_code_sent to TRUE\n");
-      }
-
-      if (left_report.y == 7) {
-          tap_code(KC_PGDN);
-          dprintf("Sent KC_PGDN\n");
-          left_pointer_tap_code_sent = true;
-          dprintf("Set left_pointer_tap_code_sent to TRUE\n");
-      } else if (left_report.y == -7) {
-          tap_code(KC_PGUP);
-          dprintf("Sent KC_PGUP\n");
-          left_pointer_tap_code_sent = true;
-          dprintf("Set left_pointer_tap_code_sent to TRUE\n");
-      }
-    }
-
-    left_report.x = 0;
-    left_report.y = 0;
-
-  }
-
-
-  return pointing_device_combine_reports(left_report, right_report);
-}
-#endif
-
-// bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-//     if (keycode == DRAG_SCROLL && record->event.pressed) {
-//         set_scrolling = !set_scrolling;
+// void updateLeftX(int arrLeftX[], int newValue) {
+//     // Shift elements to the left
+//     for (int i = 0; i < LEFT_POINTER_X_ARRAY_SIZE - 1; i++) {
+//         arrLeftX[i] = arrLeftX[i + 1];
 //     }
-//     return true;
+//     // Add the newest integer
+//     arrLeftX[LEFT_POINTER_X_ARRAY_SIZE - 1] = newValue;
 // }
+// void updateLeftY(int arrLeftY[], int newValue) {
+//     // Shift elements to the left
+//     for (int i = 0; i < LEFT_POINTER_X_ARRAY_SIZE - 1; i++) {
+//         arrLeftY[i] = arrLeftY[i + 1];
+//     }
+//     // Add the newest integer
+//     arrLeftY[LEFT_POINTER_X_ARRAY_SIZE - 1] = newValue;
+// }
+
+// void updateRightX(int arrRightX[], int newValue) {
+//     // Shift elements to the left
+//     for (int i = 0; i < RIGHT_POINTER_X_ARRAY_SIZE - 1; i++) {
+//         arrRightX[i] = arrRightX[i + 1];
+//     }
+//     // Add the newest integer
+//     arrRightX[RIGHT_POINTER_X_ARRAY_SIZE - 1] = newValue;
+// }
+// void updateRightY(int arrRightY[], int newValue) {
+//     // Shift elements to the left
+//     for (int i = 0; i < RIGHT_POINTER_X_ARRAY_SIZE - 1; i++) {
+//         arrRightY[i] = arrRightY[i + 1];
+//     }
+//     // Add the newest integer
+//     arrRightY[RIGHT_POINTER_X_ARRAY_SIZE - 1] = newValue;
+// }
+
+// bool checkAllZeros(int arr[]) {
+//     for (int i = 0; i < LEFT_POINTER_X_ARRAY_SIZE; i++) {
+//         if (arr[i] != 0) {
+//             return false; // Not all zeros
+//         }
+//     }
+//     return true; // All zeros
+// }
+// #endif
+
+// #if defined(SPLIT_POINTING_ENABLE)
+// report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+//     dprintf("=========================================================================================\n");
+//     dprintf("Checking mouse_report.x: %d, mouse_report.y: %d\n", mouse_report.x, mouse_report.y);
+//     updateLeftX(arrLeftX, mouse_report.x);
+//     updateLeftY(arrLeftY, mouse_report.y);
+//     if(checkAllZeros(arrLeftX) && checkAllZeros(arrLeftY)) {
+//         dprintf("All zeros\n");
+//         left_pointer_tap_code_sent = false;
+//         dprintf("Set left_pointer_tap_code_sent to FALSE\n");
+//     } else {
+//         dprintf("Not all zeros\n");
+//     }
+
+//     if (!enable_mouse_pointer) {
+//         dprintf("Mouse already_sent: %d\n", left_pointer_tap_code_sent);
+
+//       if (!left_pointer_tap_code_sent) {
+//         dprintf("About to send keys...\n");
+//         dprintf("Mouse_report.x: %d,Mouse_report.y: %d\n", mouse_report.x, mouse_report.y);
+//         if (mouse_report.x == 7) {
+//             tap_code(KC_END);
+//             dprintf("Sent KC_END\n");
+//             left_pointer_tap_code_sent = true;
+//             dprintf("Set left_pointer_tap_code_sent to TRUE\n");
+//         } else if (mouse_report.x == -7) {
+//             tap_code(KC_HOME);
+//             dprintf("Sent KC_HOME\n");
+//             left_pointer_tap_code_sent = true;
+//             dprintf("Set left_pointer_tap_code_sent to TRUE\n");
+//         }
+
+//         if (mouse_report.y == 7) {
+//             tap_code(KC_PGDN);
+//             dprintf("Sent KC_PGDN\n");
+//             left_pointer_tap_code_sent = true;
+//             dprintf("Set left_pointer_tap_code_sent to TRUE\n");
+//         } else if (mouse_report.y == -7) {
+//             tap_code(KC_PGUP);
+//             dprintf("Sent KC_PGUP\n");
+//             left_pointer_tap_code_sent = true;
+//             dprintf("Set left_pointer_tap_code_sent to TRUE\n");
+//         }
+//       }
+
+//       mouse_report.x = 0;
+//       mouse_report.y = 0;
+
+//     }
+//     return mouse_report;
+// }
+// #endif
+
+// #if defined(SPLIT_POINTING_ENABLE) && defined(POINTING_DEVICE_COMBINED)
+// report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, report_mouse_t right_report) {
+
+//   dprintf("=========================================================================================\n");
+//   dprintf("Left Pointing Device ==> left_report.x: %d, left_report.y: %d\n", left_report.x, left_report.y);
+//   dprintf("Right Pointing Device ==> right_report.x: %d, right_report.y: %d\n", right_report.x, right_report.y);
+
+//   dprintf("Checking left_report.x: %d, left_report.y: %d\n", left_report.x, left_report.y);
+//   updateLeftX(arrLeftX, left_report.x);
+//   updateLeftY(arrLeftY, left_report.y);
+//   updateRightX(arrRightX, left_report.x);
+//   updateRightY(arrRightY, left_report.y);
+//   if(checkAllZeros(arrLeftX) && checkAllZeros(arrLeftY)) {
+//       dprintf("All zeros\n");
+//       left_pointer_tap_code_sent = false;
+//       dprintf("Set left_pointer_tap_code_sent to FALSE\n");
+//   } else {
+//       dprintf("Not all zeros\n");
+//   }
+//   if(checkAllZeros(arrRightX) && checkAllZeros(arrRightY)) {
+//       dprintf("All zeros\n");
+//       right_pointer_tap_code_sent = false;
+//       dprintf("Set left_pointer_tap_code_sent to FALSE\n");
+//   } else {
+//       dprintf("Not all zeros\n");
+//   }
+
+//   if (!enable_mouse_pointer) {
+//       dprintf("Mouse already_sent: %d\n", left_pointer_tap_code_sent);
+
+//     if (!left_pointer_tap_code_sent) {
+//       dprintf("About to send keys...\n");
+//       dprintf("left_report.x: %d,left_report.y: %d\n", left_report.x, left_report.y);
+//       if (left_report.x == 7) {
+//           tap_code(KC_END);
+//           dprintf("Sent KC_END\n");
+//           left_pointer_tap_code_sent = true;
+//           dprintf("Set left_pointer_tap_code_sent to TRUE\n");
+//       } else if (left_report.x == -7) {
+//           tap_code(KC_HOME);
+//           dprintf("Sent KC_HOME\n");
+//           left_pointer_tap_code_sent = true;
+//           dprintf("Set left_pointer_tap_code_sent to TRUE\n");
+//       }
+
+//       if (left_report.y == 7) {
+//           tap_code(KC_PGDN);
+//           dprintf("Sent KC_PGDN\n");
+//           left_pointer_tap_code_sent = true;
+//           dprintf("Set left_pointer_tap_code_sent to TRUE\n");
+//       } else if (left_report.y == -7) {
+//           tap_code(KC_PGUP);
+//           dprintf("Sent KC_PGUP\n");
+//           left_pointer_tap_code_sent = true;
+//           dprintf("Set left_pointer_tap_code_sent to TRUE\n");
+//       }
+//     }
+
+//     left_report.x = 0;
+//     left_report.y = 0;
+
+//   }
+
+
+//   return pointing_device_combine_reports(left_report, right_report);
+// }
+// #endif
+
+
 
 
 void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
