@@ -75,6 +75,10 @@ report_analog_joystick_t analog_joystick_read(analog_joystick_config_t *analog_c
     report.x = axisToMouseComponent(analog_config, analog_config->x, xOrigin);
     report.y = axisToMouseComponent(analog_config, analog_config->y, yOrigin);
 
+// #   if defined(POINTING_DEVICE_DEBUG)
+      pd_dprintf("analog_joystick_read ==> report ==> X: %d, Y: %d\n", report.x, report.y);
+// #   endif
+
     if (analog_config->button != NO_PIN) {
         report.button = !readPin(analog_config->button);
     }
@@ -82,6 +86,9 @@ report_analog_joystick_t analog_joystick_read(analog_joystick_config_t *analog_c
 }
 
 void analog_joystick_init(const void *config) {
+// #   if defined(POINTING_DEVICE_DEBUG)
+      pd_dprintf("analog_joystick_init ==> init entered!\n");
+// #   endif
     analog_joystick_config_t *analog_config = (analog_joystick_config_t *)config;
     if (analog_config->button != NO_PIN) {
         setPinInputHigh(analog_config->button);
@@ -97,7 +104,7 @@ report_mouse_t analog_joystick_get_report(const void *config) {
 
     report_mouse_t mouse_report = {0};
 
-    pd_dprintf("Raw ] X: %d, Y: %d\n", data.x, data.y);
+    pd_dprintf("**** ==== <<<< Raw >>>> ] X: %d, Y: %d\n", data.x, data.y);
 
     mouse_report.x = data.x;
     mouse_report.y = data.y;
