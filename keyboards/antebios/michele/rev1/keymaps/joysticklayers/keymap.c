@@ -199,74 +199,84 @@ void ctl_reset (tap_dance_state_t *state, void *user_data) {
 
 
 // Layer Down tap dance
+// Layer Down key action:
+// Layer Down held down, move to MOUSE layer then move back to previous layer.
+// Layer Down tapped, enable MOUSE layer.
+// Layer Down double-tapped, nothing.
+// Layer Down tapped and held down, nothing.
 void layerDown_finished (tap_dance_state_t *state, void *user_data);
 void layerDown_reset (tap_dance_state_t *state, void *user_data);
 
-static tap layerdn_tap_state = {
+static tap layerDown_tap_state = {
   .is_press_action = true,
   .state = 0
 };
 
 void layerDown_finished (tap_dance_state_t *state, void *user_data) {
-  layerdn_tap_state.state = cur_dance(state);
-  switch (layerdn_tap_state.state) {
-    case SINGLE_TAP:  layer_move(_QWERTY); break;
-    case SINGLE_HOLD: layer_on(_LOWER); break;
-    case DOUBLE_TAP:  layer_move(_QWERTY); break;
+  layerDown_tap_state.state = cur_dance(state);
+  switch (layerDown_tap_state.state) {
+    case SINGLE_TAP:  layer_move(_MOUSE); break;
+    case SINGLE_HOLD: layer_on(_MOUSE); break;
+    case DOUBLE_TAP:  break;
     case DOUBLE_HOLD: break;
-    case TRIPLE_TAP:  soft_reset_keyboard(); break;
   }
 }
 
 void layerDown_reset (tap_dance_state_t *state, void *user_data) {
-  switch (layerdn_tap_state.state) {
+  switch (layerDown_tap_state.state) {
     case SINGLE_TAP:  break;
-    case SINGLE_HOLD: layer_off(_LOWER); break;
+    case SINGLE_HOLD: layer_off(_MOUSE); break;
     case DOUBLE_TAP:  break;
     case DOUBLE_HOLD: break;
   }
-  layerdn_tap_state.state = 0;
+  layerDown_tap_state.state = 0;
 }
 
 // Layer Up tap dance
+// Layer Up key action:
+// Layer Up held down, move to Adjust layer then move back to previous layer.
+// Layer Up tapped, nothing.
+// Layer Up double-tapped, enable Adjust layer.
+// Layer Up tapped and held down, nothing.
 void layerUp_finished (tap_dance_state_t *state, void *user_data);
 void layerUp_reset (tap_dance_state_t *state, void *user_data);
 
-static tap layerup_tap_state = {
+static tap layerUp_tap_state = {
   .is_press_action = true,
   .state = 0
 };
 
 void layerUp_finished (tap_dance_state_t *state, void *user_data) {
-  layerup_tap_state.state = cur_dance(state);
-  switch (layerup_tap_state.state) {
+  layerUp_tap_state.state = cur_dance(state);
+  switch (layerUp_tap_state.state) {
     case SINGLE_TAP: break;
-    case SINGLE_HOLD: layer_on(_RAISE); break;
-    case DOUBLE_TAP: layer_move(_RAISE); break;
+    case SINGLE_HOLD: layer_on(_ADJUST); break;
+    case DOUBLE_TAP: layer_move(_ADJUST); break;
     case DOUBLE_HOLD: break;
-    case TRIPLE_TAP: layer_move(_ADJUST); break;
+    case TRIPLE_TAP: break;
   }
 }
 
 void layerUp_reset (tap_dance_state_t *state, void *user_data) {
-  switch (layerup_tap_state.state) {
+  switch (layerUp_tap_state.state) {
     case SINGLE_TAP: break;
-    case SINGLE_HOLD: layer_off(_RAISE); break;
+    case SINGLE_HOLD: layer_off(_ADJUST); break;
     case DOUBLE_TAP: break;
     case DOUBLE_HOLD: break;
     case TRIPLE_TAP: break;
   }
-  layerup_tap_state.state = 0;
+  layerUp_tap_state.state = 0;
 }
 
 
 
 // Layer Lower tap dance
 // Layer Lower key action:
-// Layer Lower held down, move to MOUSE layer then move back to previous layer.
-// Layer Lower tapped, enable MOUSE layer.
-// Layer Lower double-tapped, nothing.
+// Layer Lower held down, move to LOWER layer then move back to previous layer.
+// Layer Lower tapped, enable QWERTY layer.
+// Layer Lower double-tapped, move to LOWER layer.
 // Layer Lower tapped and held down, nothing.
+// Layer Lower tripple-tapped, do a soft reset.
 void layerLower_finished (tap_dance_state_t *state, void *user_data);
 void layerLower_reset (tap_dance_state_t *state, void *user_data);
 
@@ -278,19 +288,21 @@ static tap layerLower_tap_state = {
 void layerLower_finished (tap_dance_state_t *state, void *user_data) {
   layerLower_tap_state.state = cur_dance(state);
   switch (layerLower_tap_state.state) {
-    case SINGLE_TAP:  layer_move(_MOUSE); break;
-    case SINGLE_HOLD: layer_on(_MOUSE); break;
-    case DOUBLE_TAP:  break;
+    case SINGLE_TAP:  layer_move(_QWERTY); break;
+    case SINGLE_HOLD: layer_on(_LOWER); break;
+    case DOUBLE_TAP:  layer_move(_QWERTY); break;
     case DOUBLE_HOLD: break;
+    case TRIPLE_TAP:  soft_reset_keyboard(); break;
   }
 }
 
 void layerLower_reset (tap_dance_state_t *state, void *user_data) {
   switch (layerLower_tap_state.state) {
     case SINGLE_TAP:  break;
-    case SINGLE_HOLD: layer_off(_MOUSE); break;
+    case SINGLE_HOLD: layer_off(_LOWER); break;
     case DOUBLE_TAP:  break;
     case DOUBLE_HOLD: break;
+    case TRIPLE_TAP: break;
   }
   layerLower_tap_state.state = 0;
 }
@@ -299,8 +311,8 @@ void layerLower_reset (tap_dance_state_t *state, void *user_data) {
 
 // Layer Raise tap dance
 // Layer Raise key action:
-// Layer Raise held down, move to MOUSE layer then move back to previous layer.
-// Layer Raise tapped, enable MOUSE layer.
+// Layer Raise held down, move to Raise layer then move back to previous layer.
+// Layer Raise tapped, enable Raise layer.
 // Layer Raise double-tapped, nothing.
 // Layer Raise tapped and held down, nothing.
 void layerRaise_finished (tap_dance_state_t *state, void *user_data);
@@ -314,19 +326,21 @@ static tap layerRaise_tap_state = {
 void layerRaise_finished (tap_dance_state_t *state, void *user_data) {
   layerRaise_tap_state.state = cur_dance(state);
   switch (layerRaise_tap_state.state) {
-    case SINGLE_TAP:  layer_move(_ADJUST); break;
-    case SINGLE_HOLD: layer_on(_ADJUST); break;
+    case SINGLE_TAP:  layer_move(_RAISE); break;
+    case SINGLE_HOLD: layer_on(_RAISE); break;
     case DOUBLE_TAP:  break;
     case DOUBLE_HOLD: break;
+    case TRIPLE_TAP: layer_move(_ADJUST); break;
   }
 }
 
 void layerRaise_reset (tap_dance_state_t *state, void *user_data) {
   switch (layerRaise_tap_state.state) {
     case SINGLE_TAP:  break;
-    case SINGLE_HOLD: layer_off(_ADJUST); break;
+    case SINGLE_HOLD: layer_off(_RAISE); break;
     case DOUBLE_TAP:  break;
     case DOUBLE_HOLD: break;
+    case TRIPLE_TAP: break;
   }
   layerRaise_tap_state.state = 0;
 }
@@ -697,10 +711,19 @@ tap_dance_action_t tap_dance_actions[] = {
 
   [ALT_OSL1]      = ACTION_TAP_DANCE_FN_ADVANCED(NULL,alt_finished, alt_reset),
   [CTL_OSL1]      = ACTION_TAP_DANCE_FN_ADVANCED(NULL,ctl_finished, ctl_reset),
+
   [TD_LayerDn]    = ACTION_TAP_DANCE_FN_ADVANCED(NULL,layerDown_finished, layerDown_reset),
   [TD_LayerUp]    = ACTION_TAP_DANCE_FN_ADVANCED(NULL,layerUp_finished, layerUp_reset),
+
   [TD_LayerLower] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,layerLower_finished, layerLower_reset),
   [TD_LayerRaise] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,layerRaise_finished, layerRaise_reset),
+
+//   [TD_LayerDn]    = ACTION_TAP_DANCE_FN_ADVANCED(NULL,layerDown_finished, layerDown_reset),
+//   [TD_LayerUp]    = ACTION_TAP_DANCE_FN_ADVANCED(NULL,layerUp_finished, layerUp_reset),
+
+//   [TD_LayerLower] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,layerLower_finished, layerLower_reset),
+//   [TD_LayerRaise] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,layerRaise_finished, layerRaise_reset),
+
   [TD_Q_BSPC]      = ACTION_TAP_DANCE_FN_ADVANCED(NULL,quekey_finished, quekey_reset),
   [TD_W_ESC]      = ACTION_TAP_DANCE_FN_ADVANCED(NULL,esckey_finished, esckey_reset),
   [TD_G_ENT]      = ACTION_TAP_DANCE_FN_ADVANCED(NULL,geekey_finished, geekey_reset),
@@ -738,7 +761,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     TD(TD_TAB_TILDE),TD(TD_Q_BSPC),TD(TD_W_ESC),       KC_E,        KC_R,        KC_T,                              KC_Y,        KC_U,             KC_I,             KC_O,            KC_P,         TD(TD_EQL_PLUS),
     TD(TD_SHIFT_CAPS),LGUI_T(KC_A),LALT_T(KC_S),LSFT_T(KC_D),LCTL_T(KC_F),TD(TD_G_ENT),                             KC_H, RCTL_T(KC_J),     RSFT_T(KC_K),     RALT_T(KC_L),        TD(TD_SMCL_CLN), TD(TD_QUOT_DQT),
     TD(CTL_OSL1),     KC_Z,        TD(TD_X_CUT),TD(TD_C_COPY),TD(TD_V_PASTE),    KC_B,                              KC_N,        KC_M,          TD(TD_COMM_LABK), TD(TD_DOT_RABK), TD(TD_SLSH_QUES),TD(TD_BSLS_PIPE),
-                               OSM(MOD_LGUI),TD(ALT_OSL1),TD(TD_LayerDn),TD(TD_LayerUp), KC_SPC,     KC_ENT,TD(TD_LayerLower),TD(TD_LayerRaise), TD(TD_LayerRaise), KC_ESC
+                               OSM(MOD_LGUI),TD(ALT_OSL1),TD(TD_LayerLower),TD(TD_LayerRaise), KC_SPC,     KC_ENT,TD(TD_LayerDn),TD(TD_LayerUp), TD(TD_LayerRaise), KC_ESC
 ),
 
 /*
