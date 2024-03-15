@@ -6,6 +6,18 @@
         "debounce_type": "sym_defer_g",
         "lto": true
     },
+    "tags": [
+        "split",
+        "rgb",
+        "rgb_matrix",
+        "oled",
+        "choc",
+        "hs-flip",
+        "ortholinear-rows",
+        "staggered-columns",
+        "sofle-choc-inspired",
+        "dual-joustick"
+    ],
     "diode_direction": "COL2ROW",
     "features": {
         "bootmagic": true,
@@ -17,8 +29,10 @@
     "development_board": "kb2040",
     "rgb_matrix": {
         "driver": "ws2812",
+        "sleep": true,
         "split_count": [29, 29],
         "animations": {
+            "alternating": true,
             "solid_color": true,
             "alphas_mods": true,
             "gradient_up_down": true,
@@ -30,6 +44,7 @@
             "band_pinwheel_val": true,
             "band_spiral_sat": true,
             "band_spiral_val": true,
+            "christmas": true,
             "cycle_all": true,
             "cycle_left_right": true,
             "cycle_up_down": true,
@@ -39,16 +54,23 @@
             "cycle_pinwheel": true,
             "cycle_spiral": true,
             "dual_beacon": true,
+            "knight": true,
             "rainbow_beacon": true,
             "rainbow_pinwheels": true,
+            "rainbow_mood": true,
+            "rainbow_swirl": true,
             "raindrops": true,
+            "rgb_test": true,
+            "snake": true,
+            "static_gradient": true,
             "jellybean_raindrops": true,
             "hue_breathing": true,
             "hue_pendulum": true,
             "hue_wave": true,
             "pixel_fractal": true,
             "pixel_flow": true,
-            "pixel_rain": true
+            "pixel_rain": true,
+            "twinkle": true
         },
         "layout": [
             { "flags": 4, "matrix": [0, 0], "x": 95, "y":  7 },
