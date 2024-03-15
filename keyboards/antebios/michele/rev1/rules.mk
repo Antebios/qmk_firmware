@@ -10,12 +10,12 @@
 # BACKLIGHT_ENABLE = no       # Enable keyboard backlight functionality
 # RGBLIGHT_ENABLE = no        # Enable keyboard RGB underglow
 # AUDIO_ENABLE = no           # Audio output
-# SPLIT_KEYBOARD = yes
 # ENCODER_ENABLE = no
 # RGB_MATRIX_ENABLE = yes
 
 # LTO_ENABLE = yes
 SERIAL_DRIVER = vendor
+SPLIT_KEYBOARD = yes
 
 
                 # {"matrix": [5, 0], "x": 6, "y": 3.25},
