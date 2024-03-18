@@ -38,6 +38,7 @@ enum {
 // entirely and just use numbers.
 enum custom_layer {
   _QWERTY,
+  _MIRROR,
   _ALT,
   _CTRL,
   _LOWER,
@@ -102,6 +103,7 @@ enum {
   TD_G_ENT,
   TD_LayerLower,
   TD_LayerRaise,
+  TD_Z_UNDO,
   TD_X_CUT,
   TD_C_COPY,
   TD_V_PASTE
@@ -288,7 +290,7 @@ static tap layerLower_tap_state = {
 void layerLower_finished (tap_dance_state_t *state, void *user_data) {
   layerLower_tap_state.state = cur_dance(state);
   switch (layerLower_tap_state.state) {
-    case SINGLE_TAP:  layer_move(_QWERTY); break;
+    case SINGLE_TAP:  layer_move(_LOWER); break;
     case SINGLE_HOLD: layer_on(_LOWER); break;
     case DOUBLE_TAP:  layer_move(_QWERTY); break;
     case DOUBLE_HOLD: break;
@@ -329,8 +331,8 @@ void layerRaise_finished (tap_dance_state_t *state, void *user_data) {
     case SINGLE_TAP:  layer_move(_RAISE); break;
     case SINGLE_HOLD: layer_on(_RAISE); break;
     case DOUBLE_TAP:  break;
-    case DOUBLE_HOLD: break;
-    case TRIPLE_TAP: layer_move(_ADJUST); break;
+    case DOUBLE_HOLD: layer_on(_MIRROR); break;
+    case TRIPLE_TAP: layer_move(_MIRROR); break;
   }
 }
 
@@ -339,7 +341,7 @@ void layerRaise_reset (tap_dance_state_t *state, void *user_data) {
     case SINGLE_TAP:  break;
     case SINGLE_HOLD: layer_off(_RAISE); break;
     case DOUBLE_TAP:  break;
-    case DOUBLE_HOLD: break;
+    case DOUBLE_HOLD: layer_off(_MIRROR); break;
     case TRIPLE_TAP: break;
   }
   layerRaise_tap_state.state = 0;
@@ -559,6 +561,42 @@ void semicolon_reset (tap_dance_state_t *state, void *user_data) {
 
 
 
+// Z key for Custom Mod
+// Z key action:
+// Z tapped, then Z keystroke only.
+// Z held down, then send UNDO key.
+// Z double-tapped, then nothing.
+// Z double-tapped and held, nothing.
+void  zeekey_finished (tap_dance_state_t *state, void *user_data);
+void  zeekey_reset (tap_dance_state_t *state, void *user_data);
+
+static tap  zeekeytap_state = {
+  .is_press_action = true,
+  .state = 0
+};
+
+void  zeekey_finished (tap_dance_state_t *state, void *user_data) {
+   zeekeytap_state.state = cur_dance(state);
+  switch ( zeekeytap_state.state) {
+    case SINGLE_TAP: tap_code(KC_X); break;
+    case SINGLE_HOLD: register_code(KC_LCTL);register_code(KC_X); break;
+    case DOUBLE_TAP: break;
+    case DOUBLE_HOLD: break;
+  }
+}
+
+void  zeekey_reset (tap_dance_state_t *state, void *user_data) {
+  switch ( zeekeytap_state.state) {
+    case SINGLE_TAP: break;
+    case SINGLE_HOLD: unregister_code(KC_X);unregister_code(KC_LCTL); break;
+    case DOUBLE_TAP: break;
+    case DOUBLE_HOLD: break;
+  }
+   zeekeytap_state.state = 0;
+}
+
+
+
 // X key for Custom Mod
 // X key action:
 // X tapped, then X keystroke only.
@@ -577,7 +615,7 @@ void  exkey_finished (tap_dance_state_t *state, void *user_data) {
    exkeytap_state.state = cur_dance(state);
   switch ( exkeytap_state.state) {
     case SINGLE_TAP: tap_code(KC_X); break;
-    case SINGLE_HOLD: tap_code(KC_CUT); break;
+    case SINGLE_HOLD: register_code(KC_LCTL);register_code(KC_X); break;
     case DOUBLE_TAP: break;
     case DOUBLE_HOLD: break;
   }
@@ -586,7 +624,7 @@ void  exkey_finished (tap_dance_state_t *state, void *user_data) {
 void  exkey_reset (tap_dance_state_t *state, void *user_data) {
   switch ( exkeytap_state.state) {
     case SINGLE_TAP: break;
-    case SINGLE_HOLD: break;
+    case SINGLE_HOLD: unregister_code(KC_X);unregister_code(KC_LCTL); break;
     case DOUBLE_TAP: break;
     case DOUBLE_HOLD: break;
   }
@@ -613,7 +651,7 @@ void  seekey_finished (tap_dance_state_t *state, void *user_data) {
    seekeytap_state.state = cur_dance(state);
   switch ( seekeytap_state.state) {
     case SINGLE_TAP: tap_code(KC_C); break;
-    case SINGLE_HOLD: tap_code(KC_COPY); break;
+    case SINGLE_HOLD: register_code(KC_LCTL);register_code(KC_C); break;
     case DOUBLE_TAP: break;
     case DOUBLE_HOLD: break;
   }
@@ -622,7 +660,7 @@ void  seekey_finished (tap_dance_state_t *state, void *user_data) {
 void  seekey_reset (tap_dance_state_t *state, void *user_data) {
   switch ( seekeytap_state.state) {
     case SINGLE_TAP: break;
-    case SINGLE_HOLD: break;
+    case SINGLE_HOLD: unregister_code(KC_C);unregister_code(KC_LCTL); break;
     case DOUBLE_TAP: break;
     case DOUBLE_HOLD: break;
   }
@@ -649,7 +687,7 @@ void  veekey_finished (tap_dance_state_t *state, void *user_data) {
    veekeytap_state.state = cur_dance(state);
   switch ( veekeytap_state.state) {
     case SINGLE_TAP: tap_code(KC_V); break;
-    case SINGLE_HOLD: tap_code(KC_PASTE); break;
+    case SINGLE_HOLD: register_code(KC_LCTL);register_code(KC_V); break;
     case DOUBLE_TAP: break;
     case DOUBLE_HOLD: break;
   }
@@ -658,7 +696,7 @@ void  veekey_finished (tap_dance_state_t *state, void *user_data) {
 void  veekey_reset (tap_dance_state_t *state, void *user_data) {
   switch ( veekeytap_state.state) {
     case SINGLE_TAP: break;
-    case SINGLE_HOLD: break;
+    case SINGLE_HOLD: unregister_code(KC_V);unregister_code(KC_LCTL); break;
     case DOUBLE_TAP: break;
     case DOUBLE_HOLD: break;
   }
@@ -727,6 +765,7 @@ tap_dance_action_t tap_dance_actions[] = {
   [TD_Q_BSPC]      = ACTION_TAP_DANCE_FN_ADVANCED(NULL,quekey_finished, quekey_reset),
   [TD_W_ESC]      = ACTION_TAP_DANCE_FN_ADVANCED(NULL,esckey_finished, esckey_reset),
   [TD_G_ENT]      = ACTION_TAP_DANCE_FN_ADVANCED(NULL,geekey_finished, geekey_reset),
+  [TD_Z_UNDO]      = ACTION_TAP_DANCE_FN_ADVANCED(NULL,zeekey_finished, zeekey_reset),
   [TD_X_CUT]      = ACTION_TAP_DANCE_FN_ADVANCED(NULL,exkey_finished, exkey_reset),
   [TD_C_COPY]      = ACTION_TAP_DANCE_FN_ADVANCED(NULL,seekey_finished, seekey_reset),
   [TD_V_PASTE]      = ACTION_TAP_DANCE_FN_ADVANCED(NULL,veekey_finished, veekey_reset),
@@ -735,8 +774,39 @@ tap_dance_action_t tap_dance_actions[] = {
 
 // END OF TAP DANCE ***********************************************************
 
-#define KC_L1 LOWER
-#define KC_L2 RAISE
+// COMBOS ***********************************************************
+// Combos Declarations
+enum combos {
+  FG_ENT,
+  NUM45
+};
+
+const uint16_t PROGMEM fg_combo[]    = {KC_F, KC_G, COMBO_END};
+const uint16_t PROGMEM num45_combo[] = {KC_4, KC_5, COMBO_END};
+
+combo_t key_combos[] = {
+  [FG_ENT] = COMBO_ACTION(fg_combo),
+  [NUM45] = COMBO_ACTION(num45_combo),
+};
+
+void process_combo_event(uint16_t combo_index, bool pressed) {
+  switch(combo_index) {
+    case NUM45:
+      if (pressed) {
+        SEND_STRING("5881320");
+        tap_code16(KC_ENT);
+      }
+      break;
+    case FG_ENT:
+      if (pressed) {
+        tap_code16(KC_ENT);
+      }
+      break;
+  }
+}
+
+// END OF COMBOS ***********************************************************
+
 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -760,8 +830,32 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_BSPC,          KC_1,               KC_2,        KC_3,        KC_4,        KC_5,                              KC_6,        KC_7,             KC_8,          TD(TD_9_LPRN),   TD(TD_0_RPRN),   TD(TD_MINS_UNDS),
     TD(TD_TAB_TILDE),TD(TD_Q_BSPC),TD(TD_W_ESC),       KC_E,        KC_R,        KC_T,                              KC_Y,        KC_U,             KC_I,             KC_O,            KC_P,         TD(TD_EQL_PLUS),
     TD(TD_SHIFT_CAPS),LGUI_T(KC_A),LALT_T(KC_S),LSFT_T(KC_D),LCTL_T(KC_F),TD(TD_G_ENT),                             KC_H, RCTL_T(KC_J),     RSFT_T(KC_K),     RALT_T(KC_L),        TD(TD_SMCL_CLN), TD(TD_QUOT_DQT),
-    TD(CTL_OSL1),     KC_Z,        TD(TD_X_CUT),TD(TD_C_COPY),TD(TD_V_PASTE),    KC_B,                              KC_N,        KC_M,          TD(TD_COMM_LABK), TD(TD_DOT_RABK), TD(TD_SLSH_QUES),TD(TD_BSLS_PIPE),
-                               OSM(MOD_LGUI),TD(ALT_OSL1),TD(TD_LayerLower),TD(TD_LayerRaise), KC_SPC,     KC_ENT,TD(TD_LayerDn),TD(TD_LayerUp), TD(TD_LayerRaise), KC_ESC
+    TD(CTL_OSL1),    TD(TD_Z_UNDO),TD(TD_X_CUT),TD(TD_C_COPY),TD(TD_V_PASTE),    KC_B,                              KC_N,        KC_M,          TD(TD_COMM_LABK), TD(TD_DOT_RABK), TD(TD_SLSH_QUES),TD(TD_BSLS_PIPE),
+                               OSM(MOD_LGUI),TD(ALT_OSL1),TD(TD_LayerLower),TD(TD_LayerRaise), KC_SPC,     KC_ENT,TD(TD_LayerDn),TD(TD_LayerUp),TD(TD_LayerRaise),   KC_ESC
+),
+
+/*
+ * MIRROR
+ * ,-----------------------------------------.                    ,-----------------------------------------.
+ * |  -_  |  0   |   9  |   8  |   7  |   6  |                    |   6  |   7  |   8  |   9  |  0   |  -_  |
+ * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
+ * |  +=  |  P   |   O  |   I  |   U  |   Y  |                    |   Y  |   U  |   I  |   O  |  P   |  +=  |
+ * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
+ * |  '"  |  ;:  |   L  |   K  |   J  |   H  |-------.    ,-------|   H  |   J  |   K  |   L  |  ;:  |  '"  |
+ * |------+------+------+------+------+------| JoySt |    | JoySt |------+------+------+------+------+------|
+ * |  \|  |  /?  |  .>  |  ,<  |   M  |   N  |-------|    |-------|   N  |   M  |  ,<  |  .>  |  /?  |  \|  |
+ * `-----------------------------------------/       /     \      \-----------------------------------------'
+ *               | LGUI | LALT |Lower |Raise/ Space /       \ENTER \  ˅  |   ˄  |   ˄  | ESC  |
+ *               |      |      |      |    /       /         \      \    |      |      |      |
+ *               `------------------------'-------'           '------'------------------------'
+ */
+
+  [_MIRROR] = LAYOUT(
+    TD(TD_MINS_UNDS),      KC_0,            KC_9,        KC_8,        KC_7,        KC_6,                                KC_6,        KC_7,             KC_8,          TD(TD_9_LPRN),   TD(TD_0_RPRN),   TD(TD_MINS_UNDS),
+    TD(TD_EQL_PLUS),       KC_P,            KC_O,        KC_I,        KC_U,        KC_Y,                                KC_Y,        KC_U,             KC_I,             KC_O,            KC_P,         TD(TD_EQL_PLUS),
+    TD(TD_QUOT_DQT), TD(TD_SMCL_CLN),RALT_T(KC_L),RSFT_T(KC_K),RCTL_T(KC_J),       KC_H,                                KC_H, RCTL_T(KC_J),     RSFT_T(KC_K),     RALT_T(KC_L),        TD(TD_SMCL_CLN), TD(TD_QUOT_DQT),
+    TD(TD_BSLS_PIPE),TD(TD_SLSH_QUES),TD(TD_DOT_RABK),TD(TD_COMM_LABK),KC_M,       KC_N,                                KC_N,        KC_M,          TD(TD_COMM_LABK), TD(TD_DOT_RABK), TD(TD_SLSH_QUES),TD(TD_BSLS_PIPE),
+                               OSM(MOD_LGUI),TD(ALT_OSL1),TD(TD_LayerLower),TD(TD_LayerRaise), KC_SPC,     KC_ENT,TD(TD_LayerDn),TD(TD_LayerUp),    TD(TD_LayerRaise),   KC_ESC
 ),
 
 /*
@@ -792,13 +886,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /*
  * LOWER Layout
  * ,-----------------------------------------.                    ,-----------------------------------------.
- * | Del  | Ins  |  F2  |  F3  |  F4  |  F5  |                    |  F6  |  F7  |  F8  |  F9  |  F0  | F11  |
+ * | Del  | Ins  |      |      |      |      |                    |      |   =  |   /  |   *  |   -  | Bspc |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * | PrtSc|      |      |  UP  |      |  (   |                    |   )  |   7  |   8  |   9  |   /  | F12  |
+ * | PrtSc|      |      |  UP  |      |  (   |                    |   )  |   7  |   8  |   9  |   +  |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      |      | LEFT | DOWN | RIGHT|  [   |-------.    ,-------|   ]  |   4  |   5  |   6  |   *  |   -  |
+ * |      |      | LEFT | DOWN | RIGHT|  [   |-------.    ,-------|   ]  |   4  |   5  |   6  |   +  |      |
  * |------+------+------+------+------+------| JoySt |    | JoySt |------+------+------+------+------+------|
- * |      |      |      |      |      |  {   |-------|    |-------|   }  |   1  |   2  |   3  |   =  |   +  |
+ * |      |      |      |      |      |  {   |-------|    |-------|   }  |   1  |   2  |   3  |Enter |      |
  * `-----------------------------------------/       /     \      \-----------------------------------------'
  *               | LGUI | LALT |Lower |Raise/ Space /       \ENTER \   0 |   0  |   .  |   ,  |
  *               |      |      |      |    /       /         \      \    |      |      |      |
@@ -806,10 +900,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 
   [_LOWER] = LAYOUT(
-    KC_DEL,  KC_INS,  KC_F2,  KC_F3,   KC_F4,   KC_F5,                         KC_F6,   KC_F7, KC_F8,  KC_F9,  KC_F10,  KC_F11,
-    KC_PSCR, KC_NO,   KC_NO,  KC_UP,   KC_NO,   KC_LPRN,                       KC_RPRN, KC_7,  KC_8,   KC_9,   KC_PSLS, KC_F12,
-    KC_NO,   KC_NO,   KC_LEFT,KC_DOWN, KC_RIGHT,KC_LBRC,                       KC_RBRC, KC_4,  KC_5,   KC_6,   KC_PAST, KC_PMNS,
-    KC_NO,   KC_NO,   KC_NO,  KC_NO,   KC_NO,   KC_LCBR,                       KC_RCBR, KC_1,  KC_2,   KC_3,   KC_PEQL, KC_PPLS,
+    KC_DEL,  KC_INS,  KC_NO,  KC_NO,   KC_NO,   KC_NO,                         KC_NO,   KC_EQL,KC_PSLS,KC_PAST,KC_PMNS, KC_BSPC,
+    KC_PSCR, KC_NO,   KC_NO,  KC_UP,   KC_NO,   KC_LPRN,                       KC_RPRN, KC_7,  KC_8,   KC_9,   KC_PPLS, KC_NO,
+    KC_NO,   KC_NO,   KC_LEFT,KC_DOWN, KC_RIGHT,KC_LBRC,                       KC_RBRC, KC_4,  KC_5,   KC_6,   KC_PPLS, KC_NO,
+    KC_NO,   KC_NO,   KC_NO,  KC_NO,   KC_NO,   KC_LCBR,                       KC_RCBR, KC_1,  KC_2,   KC_3,   KC_PENT, KC_NO,
                       KC_TRNS,KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,     KC_PENT, KC_0,    KC_0,  KC_DOT, KC_COMMA
 ),
 
@@ -866,15 +960,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /*
  * RGB and Media
- * ,-----------------------------------------.                    ,-----------------------------------------.
- * |      |      |      |      |      |      |                    |LBri+ |      |      |      |      |      |
- * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |Reboot|      |      |      |      |      |                    |LBri- |      |      |      |      |      |
- * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      |RGBTog| Hue+ | Sat+ |Brite+|Efct+ |-------.    ,-------|   ]  | Vol- | Mute | Vol+ |      |      |
- * |------+------+------+------+------+------| JoySt |    | JoySt |------+------+------+------+------+------|
- * |      |RGBMd+| Hue- | Sat- |Brite-|Efct- |-------|    |-------|   }  | Prev | Play | Next |      |      |
- * `-----------------------------------------/       /     \      \-----------------------------------------'
+ * ,-----------------------------------------.                    ,------------------------------------------.
+ * |      |      |      |      |      |      |                    |LBri+ |      |      |      |      |       |
+ * |------+------+------+------+------+------|                    |------+------+------+------+------+-------|
+ * |Reboot|      |      |      |      |      |                    |LBri- |      |      |      |      |       |
+ * |------+------+------+------+------+------|                    |------+------+------+------+------+-------|
+ * |      |RGBTog| Hue+ | Sat+ |Brite+|Efct+ |-------.    ,-------|      | Vol- | Mute | Vol+ |      |CMB On |
+ * |------+------+------+------+------+------| JoySt |    | JoySt |------+------+------+------+------+-------|
+ * |      |RGBMd+| Hue- | Sat- |Brite-|Efct- |-------|    |-------|      | Prev | Play | Next |      |CMB Off|
+ * `-----------------------------------------/       /     \      \------------------------------------------'
  *               | LGUI | LALT |Lower |Raise/ Space /       \ENTER \  ˅  |  ˄   |  ˄   | ESC  |
  *               |      |      |      |    /       /         \      \    |      |      |      |
  *               `------------------------'-------'           '------'------------------------'
@@ -883,8 +977,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_ADJUST] = LAYOUT(
     KC_NO,  KC_NO,   KC_NO,  KC_NO,   KC_NO,   KC_NO,                          KC_BRIU, KC_NO,  KC_NO,   KC_NO,   KC_NO,  KC_NO,
     QK_RBT, KC_NO,   KC_NO,  KC_NO,   KC_NO,   KC_NO,                          KC_BRID, KC_NO,  KC_NO,   KC_NO,   KC_NO,  KC_NO,
-    KC_NO,  RGB_TOG, RGB_HUI,RGB_SAI, RGB_VAI, RGB_SPI,                        KC_RBRC, KC_VOLD,KC_MUTE, KC_VOLU, KC_NO,  KC_NO,
-    KC_NO,  RGB_MOD, RGB_HUD,RGB_SAD, RGB_VAD, RGB_SPD,                        KC_RCBR, KC_MPRV,KC_MPLY, KC_MNXT, KC_NO,  KC_NO,
+    KC_NO,  RGB_TOG, RGB_HUI,RGB_SAI, RGB_VAI, RGB_SPI,                        KC_NO, KC_VOLD,KC_MUTE, KC_VOLU, KC_NO,  QK_COMBO_ON,
+    KC_NO,  RGB_MOD, RGB_HUD,RGB_SAD, RGB_VAD, RGB_SPD,                        KC_NO, KC_MPRV,KC_MPLY, KC_MNXT, KC_NO,  QK_COMBO_OFF,
                      KC_TRNS,KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,      KC_TRNS, KC_TRNS, KC_TRNS,KC_TRNS, KC_TRNS
 ),
 
@@ -1006,6 +1100,11 @@ layer_state_t layer_state_set_user(layer_state_t state) {
         case _QWERTY:
             // Code for when the base layer is active
             current_layer = _QWERTY;
+            enable_mouse_pointer = false;
+            break;
+        case _MIRROR:
+            // Code for when the base layer is active
+            current_layer = _MIRROR;
             enable_mouse_pointer = false;
             break;
         case _ALT:
@@ -1322,10 +1421,13 @@ bool oled_task_user(void) {
     // Host Keyboard Layer Status
     if (is_keyboard_master()) {
       // LEFT OLED
-      oled_write_P(PSTR("Layer:\n"), false);
+      oled_write_P(PSTR("LAYER\n"), false);
       switch (get_highest_layer(layer_state)) {
         case _QWERTY:
             oled_write_P(PSTR("Base\n"), false);
+            break;
+        case _MIRROR:
+            oled_write_P(PSTR("Miror\n"), false);
             break;
         // case _MEDIA:
         //     oled_write_P(PSTR("Media\n"), false);
@@ -1372,9 +1474,9 @@ bool oled_task_user(void) {
 
       // Host Keyboard LED Status
       led_t led_state = host_keyboard_led_state();
-      oled_write_P(led_state.num_lock ? PSTR("NUMLK\n") : PSTR("    "), false);
-      oled_write_P(led_state.caps_lock ? PSTR("CPSLK\n") : PSTR("    "), false);
-      oled_write_P(led_state.scroll_lock ? PSTR("SCRLK\n") : PSTR("    "), false);
+      oled_write_P(led_state.num_lock ? PSTR("\nNUMLK\n") : PSTR("    "), false);
+      oled_write_P(led_state.caps_lock ? PSTR("\nCPSLK\n") : PSTR("    "), false);
+      oled_write_P(led_state.scroll_lock ? PSTR("\nSCRLK\n") : PSTR("    "), false);
     } else {
       // RIGHT OLED
       // oled_write(read_logo(), false);
